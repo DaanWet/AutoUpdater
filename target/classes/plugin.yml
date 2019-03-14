@@ -4,4 +4,8 @@ main: me.damascus2000.autoupdater.AutoUpdater
 api-version: 1.13
 authors: [Damascus2000]
 description: Auto updater for other plugins
-load: startup
+load: STARTUP
+commands:
+  update:
+    description:
+      updates every plugin
