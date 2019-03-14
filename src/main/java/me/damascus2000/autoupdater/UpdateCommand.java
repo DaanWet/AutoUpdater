@@ -15,7 +15,7 @@ public class UpdateCommand implements CommandExecutor {
             try {
                 Updater.update();
             } catch (MalformedURLException e) {
-                sender.sendMessage(ChatColor.DARK_RED + "");
+                e.printStackTrace();
             }
         }else {
             sender.sendMessage(ChatColor.DARK_RED + "This commands doesn't require arguments");

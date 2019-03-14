@@ -8,6 +8,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOError;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -21,7 +22,11 @@ public final class AutoUpdater extends JavaPlugin {
     public void onEnable() {
         // Plugin startup logic
         pluginsYml = new File(getDataFolder(), "plugins.yml");
-        Updater.update();
+        try{
+            Updater.update();
+        } catch (MalformedURLException e){
+            e.printStackTrace();
+        }
         getCommand("update").setExecutor(new UpdateCommand());
     }
 

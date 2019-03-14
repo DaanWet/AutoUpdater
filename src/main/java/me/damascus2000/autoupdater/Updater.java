@@ -1,26 +1,34 @@
 package me.damascus2000.autoupdater;
 
-import jdk.nashorn.internal.runtime.ECMAException;
-import org.bukkit.plugin.Plugin;
+
+import org.bukkit.Bukkit;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Scanner;
 
 public class Updater {
 
 
     public static void update() throws MalformedURLException {
         URL lijst = new URL("https://users.ugent.be/~fldbossc/");
-        try (BufferedInputStream in = new BufferedInputStream(lijst.openStream())){
-            String jsonFile = "";
-
-
-        } catch (IOException e){
-            
+        try{
+            String jsonString = new Scanner(lijst.openStream(), "UTF-8").useDelimiter("\\A").next();
+            JSONParser parser = new JSONParser();
+            JSONObject jsonObject = (JSONObject) parser.parse(jsonString);
+            for (Object object : jsonObject.values()){
+                String name = (String) object;
+                Bukkit.getConsoleSender().sendMessage(name);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
         }
+
     }
 
 
