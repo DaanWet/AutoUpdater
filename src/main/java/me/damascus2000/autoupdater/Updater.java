@@ -2,15 +2,22 @@ package me.damascus2000.autoupdater;
 
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import java.io.BufferedInputStream;
-import java.io.FileOutputStream;
+import javax.xml.bind.DatatypeConverter;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Iterator;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Set;
 
 public class Updater {
 
@@ -22,17 +29,45 @@ public class Updater {
             Bukkit.getLogger().info(jsonString);
             JSONParser parser = new JSONParser();
             JSONObject jsonObject = (JSONObject) parser.parse(jsonString);
+            Set<String> keySet = jsonObject.keySet();
+            ArrayList<String> currentPlugins = getPluginList();
             for (Object object : jsonObject.keySet()){
                 String name = (String) object;
-                Bukkit.getLogger().info(name);
-                if (! name.contains("spigot")) {
+                boolean verschillend = true;
+                if (currentPlugins.contains(name)) {
+                    String webhash = ((String) jsonObject.get(name)).toLowerCase();
+                    String currenthash = calculateHash(name).toLowerCase();
+                    verschillend = !currenthash.equalsIgnoreCase(webhash);
+                }
+                if (! name.contains("spigot") && verschillend) {
                     download("https://users.ugent.be/~fldbossc/plugins/" + name, name);
+                }
+            }
+            for (String plugin : currentPlugins){
+                if (! keySet.contains(plugin)){
+                    File file = new File("plugins" + System.getProperty("file.separator") + plugin);
+                    if (file.delete()){
+                        Bukkit.getLogger().info("Succesfully removed " + plugin);
+                    }
                 }
             }
         } catch (Exception e){
             e.printStackTrace();
+            Bukkit.getServer().broadcastMessage(ChatColor.RED + "Unable to update all plugins");
         }
 
+    }
+    public static ArrayList<String> getPluginList(){
+        ArrayList<String> lijst = new ArrayList<>();
+        File dir = new File(AutoUpdater.class.getProtectionDomain().getCodeSource().getLocation().getPath().replaceAll("%20", ""));
+        File pluginsfolder = new File(dir.getParent());
+        File[] listOfFiles = pluginsfolder.listFiles();
+        for (File file : listOfFiles){
+            if (file.isFile()){
+                lijst.add(file.getName());
+            }
+        }
+        return lijst;
     }
 
 
@@ -50,5 +85,23 @@ public class Updater {
             return false;
         }
         return true;
+    }
+
+    public static String calculateHash(String plugin) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        try (InputStream is = Files.newInputStream(Paths.get("tests" + System.getProperty("file.separator") + plugin));
+             DigestInputStream dis = new DigestInputStream(is, md))
+        {
+            byte[] buff = new byte[1024];
+            int count = dis.read(buff);
+            while (count > 0){
+                count = dis.read(buff, 0, 1024);
+            }
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        byte[] digest = md.digest();
+        return DatatypeConverter.printHexBinary(digest);
+
     }
 }
