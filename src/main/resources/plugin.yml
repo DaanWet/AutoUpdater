@@ -5,7 +5,3 @@ api-version: 1.13
 authors: [Damascus2000]
 description: Auto updater for other plugins
 load: STARTUP
-commands:
-  update:
-    description:
-      updates every plugin
