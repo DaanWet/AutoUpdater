@@ -91,7 +91,7 @@ public class Updater {
 
     public static String calculateHash(String plugin) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("MD5");
-        try (InputStream is = Files.newInputStream(Paths.get("tests" + System.getProperty("file.separator") + plugin));
+        try (InputStream is = Files.newInputStream(Paths.get("plugins" + System.getProperty("file.separator") + plugin));
              DigestInputStream dis = new DigestInputStream(is, md)) {
             byte[] buff = new byte[1024];
             int count = dis.read(buff);
